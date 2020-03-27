@@ -41,6 +41,9 @@ export class HomeComponent implements OnInit {
     });
   }
 
+  /**
+   * When the application is loaded we generate a keypair and we request the public key from the server
+   */
   async ngOnInit() {
     this.validation_messages = {
       message: [
@@ -53,6 +56,9 @@ export class HomeComponent implements OnInit {
     await this.getPublicKey();
   }
 
+  /**
+   * Get public key from the server
+   */
   async getPublicKey() {
     this.homeService.get_publicKey()
       .subscribe(
@@ -67,11 +73,15 @@ export class HomeComponent implements OnInit {
       );
   }
 
+  /**
+   * Encrypt the message introduced by the user
+   */
   async post_message() {
     const c = this.publicKey.encrypt(bc.textToBigint(this.homeForm.value.message));
     const message = {
       msg: bc.bigintToHex(c)
     };
+    // Print the response to see if the response coincides with the message
     this.homeService.post_message(message)
       .subscribe(
         res => {
@@ -83,11 +93,15 @@ export class HomeComponent implements OnInit {
         });
   }
 
+  /**
+   * Sign a message introduced by the user
+   */
   async sign_message() {
     const m = bc.bigintToHex(bc.textToBigint(this.homeForm.value.message));
     const message = {
       msg: m
     };
+    // Print the response to see if the response coincides with the message  
     this.homeService.post_message_sign(message)
       .subscribe(
         res => {
@@ -101,6 +115,9 @@ export class HomeComponent implements OnInit {
         });
   }
 
+  /**
+   * Sign a message introduced by the user using blind signtaure method
+   */
   async blind_sign_message() {
     // Generate the blinding factor
     const m = bc.textToBigint(this.homeForm.value.message);
@@ -117,8 +134,9 @@ export class HomeComponent implements OnInit {
       .subscribe(
         async res => {
           const bs = bc.hexToBigint(res['msg']);
-          const s = await (bs*bcu.modInv(this.r, this.publicKey.n))%this.publicKey.n;
+          const s = (bs * bcu.modInv(this.r, this.publicKey.n))%this.publicKey.n;
           const m = await this.publicKey.verify(s);
+          // Print the message in the form to see if the response coincides with the message
           document.getElementById('blind-sign-verified').innerHTML =  'The message verified is: ' + bc.bigintToText(m) as string;
         },
         err => {
@@ -127,6 +145,9 @@ export class HomeComponent implements OnInit {
         });
   }
 
+  /**
+   * Get the home message from the server
+   */
   async get_message() {
     this.homeService.get_message()
       .subscribe(
@@ -140,6 +161,10 @@ export class HomeComponent implements OnInit {
       );
   }
 
+  /**
+   * Function to print the error from ALL responses in the form
+   * @param err Error return from the server
+   */
   private handleError(err: HttpErrorResponse) {
     if ( err.status === 500 ) {
       this.homeForm.get('message').setErrors({error: true});
