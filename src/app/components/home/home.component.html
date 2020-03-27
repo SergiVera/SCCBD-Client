@@ -1,0 +1,33 @@
+<form [formGroup]="homeForm">
+  <div class="heading">Messages</div>
+    <div class="form-group">
+      <div class="example-container">
+        <input type="text" formControlName="message" id="message" placeholder="message" required/>
+      </div>
+      <div class="validation-errors">
+        <ng-container *ngFor="let validation of validation_messages.message">
+          <div class="alert alert-danger" *ngIf="homeForm.get('message').hasError(validation.type) && (homeForm.get('message').dirty || homeForm.get('message').touched)">
+            {{ validation.message }}
+          </div>
+        </ng-container>
+      </div>
+    </div>
+    <div class="buttons-message">
+        <button id = "encrypt" type = "submit" name="encrypt" (click)="post_message()" [disabled]="!homeForm.valid">Encrypt</button>
+        <button id = "sign" type="submit" name="sign" class="buttons-message" (click)="sign_message()" [disabled]="!homeForm.valid">Sign</button>
+        <button id = "blind-sign" type="submit" name="blind-sign" class="buttons-message" (click)="blind_sign_message()" [disabled]="!homeForm.valid">Blind Signature</button>
+        <button id = "get" type="submit" name="get" class="buttons-message" (click)="get_message()">Get</button>
+    </div>
+</form>
+
+<h3 class="response">
+  The message decrypted is: {{decrypted}}
+</h3>
+
+<h3 class="response" id="blind-sign-verified">
+  The message verified is: {{verified}}
+</h3>
+
+<h3 class="response">
+  The message obtained is: {{response}}
+</h3>
